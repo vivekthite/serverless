@@ -18,17 +18,81 @@ provider:
   runtime: nodejs8.10
   stage: dev
   region: us-east-1
+  # 'iamRoleStatements' defines the permission policy for the lambda function
+  # In this case lambda function is granted with permissions to access DynamoDB.
+  iamRoleStatements: 
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:DescribeTable
+        - dynamodb:DeleteItem
+        - dynamodb:GetItem
+        - dynamodb:Scan
+        - dynamodb:Query
+        - dynamodb:UpdateItem
+      Resource: "arn:aws:dynamodb:us-east-1:*:*"    
   # To load environment variables externally
   # rename env.example to env.yml and uncomment
   # the following line. Also, make sure to not
   # commit your env.yml.
   #
   #environment: ${file(env.yml):${self:provider.stage}}
-
-functions:
-  hello:
-    handler: handler.hello
+  
+functions:  
+  create:
+    # Defines an HTTP API endpoint that calls the main function in create.js
+    #  - path : url path is /notes
+    #  - method: post request
+    #  - cors: enabled CORS for browser cross domain API call
+    #  - authorizer : authenticate using AWS IAM role 
+    handler: create.main
     events:
       - http:
-          path: hello
+          path: notes
+          method: post
+          cors: true
+          authorizer: aws_iam
+  get:
+    # Defines an HTTP API endpoint that calls the main function in get.js
+    # - path : url path is /notes/{id}
+    # - method : GET request
+    handler: get.main
+    events:
+      - http:
+          path: notes/{id}
           method: get
+          cors: true
+          authorizer: aws_iam
+  list:
+    # Defines an HTTP API endpoint that calls the main function in list.js
+    # - path : url path is /notes
+    # - method : GET request
+    handler: list.main
+    events:
+      - http:
+          path: notes
+          method: get
+          cors: true
+          authorizer: aws_iam        
+  update:
+    # Defines an HTTP API endpoint that calls the main function in update.js
+    # - path : url path is /notes/{id}
+    # - method : GET request
+    handler: update.main
+    events:
+      - http:
+          path: notes/{id}
+          method: put
+          cors: true
+          authorizer: aws_iam
+  delete:
+    # Defines an HTTP API endpoint that calls the main function in delete.js
+    # - path : url path is /notes/{id}
+    # - method : DELETE request
+    handler: delete.main
+    events:
+      - http:
+          path: notes/{id}
+          method: delete
+          cors: true
+          authorizer: aws_iam                 
