@@ -12,11 +12,19 @@ custom:
   webpack:
     webpackConfig: ./webpack.config.js
     includeModules: true
+  #our stage is what we have passed in while running serverless command or
+  #falls back to provider stage
+  stage: ${opt:stage, self:provider.stage}
+  #table throughput for prod and all other non prod stages
+  tableThroughputs:
+    prod: 5
+    default: 1
+  tableThroughput: ${self:custom.tableThroughputs.${self:custom.stage}, self:custom.tableThroughputs.default}    
 
 provider:
   name: aws
   runtime: nodejs8.10
-  stage: dev
+  stage: ${opt:stage, 'dev'}
   region: us-east-1
   # 'iamRoleStatements' defines the permission policy for the lambda function
   # In this case lambda function is granted with permissions to access DynamoDB.
@@ -30,13 +38,16 @@ provider:
         - dynamodb:Scan
         - dynamodb:Query
         - dynamodb:UpdateItem
-      Resource: "arn:aws:dynamodb:us-east-1:*:*"    
+      Resource: "Fn::GetAtt": [ NotesTable, Arn ]    
   # To load environment variables externally
   # rename env.example to env.yml and uncomment
   # the following line. Also, make sure to not
   # commit your env.yml.
   #
   #environment: ${file(env.yml):${self:provider.stage}}
+  environment: 
+    tableName:
+      Ref: NotesTable
   
 functions:  
   create:
@@ -95,4 +106,9 @@ functions:
           path: notes/{id}
           method: delete
           cors: true
-          authorizer: aws_iam                 
+          authorizer: aws_iam   
+
+resources:
+  #DynamoDb
+  - ${file(resources/dynamodb-table.yml)}
+               
