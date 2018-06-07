@@ -14,7 +14,7 @@ export async function main(event , context , callback) {
         await stripe.charges.create({
             amount,
             currency: "usd",
-            source, // obtained with Stripe.js
+            source, 
             description
           });
           callback(null,success({status : true}));
