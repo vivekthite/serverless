@@ -107,7 +107,18 @@ functions:
           path: notes/{id}
           method: delete
           cors: true
-          authorizer: aws_iam   
+          authorizer: aws_iam 
+  
+  #billing api
+  billing:
+    handler: billing.main
+    events:
+      - http:
+          path: billing
+          method: post
+          cors: true
+          authorizer: aws_iam  
+          
 
 resources:
   #DynamoDb
