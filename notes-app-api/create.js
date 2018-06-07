@@ -10,7 +10,7 @@ export async function main(event,context,callback){
 
     //dynamodb put params
     const params = {
-        TableName : "notes",
+        TableName : process.env.tableName,
         /*
             'Item' contain attributes of the record to be created - 
                 userId : user identities are federated through the cognito 

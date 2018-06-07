@@ -4,7 +4,7 @@ import {success,failure} from "./libs/response-lib";
 export async function main(event,context,callback) {
     //define query params
     const params = {
-        TableName : "notes",
+        TableName : process.env.tableName,
         KeyConditionExpression : "userId = :userId",
         ExpressionAttributeValues : {
             ":userId" : event.requestContext.identity.cognitoIdentityId
